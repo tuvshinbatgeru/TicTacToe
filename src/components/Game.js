@@ -4,12 +4,14 @@ import {
 	View, 
 	Text,
 	TouchableOpacity,
-    Dimensions
+  Dimensions
 } from 'react-native'
 
 import Grid from './Grid'
+import GameControl from './GameControl'
+import Plane from './Plane'
 
-const blockSize = 100
+const blockSize = 50
 const screen = Dimensions.get('window')
 
 export default class Game extends Component {
@@ -18,37 +20,109 @@ export default class Game extends Component {
     super(props);
   
     this.state = {
-        board: [
-           [{value: 0},{value: 0},{value: 0}]
-        , 
-           [{value: 0},{value: 0},{value: 0}]
-        , 
-           [{value: 0},{value: 0},{value: 0}]
-        ],
-
+        board: [],
         playerTurn: true, //true == x, false == y
         gameResult: 0, //0 - inProgress, 1 - x, 2 - o, 3-draw 
-        step: 0
+        step: 0,
+        heart: {
+          x: 2,
+          y: 2,
+        },
+        direction: 0,
     }
 
     this.onGridPressed = this.onGridPressed.bind(this)
     this._renderOverlay = this._renderOverlay.bind(this)
     this.gameWinCondition = this.gameWinCondition.bind(this)
     this.onPlayAgain = this.onPlayAgain.bind(this)
+    
+    this.onLeftPress = this.onLeftPress.bind(this)
+    this.onRightPress = this.onRightPress.bind(this)
+    this.onBottomPress = this.onBottomPress.bind(this)
+    this.onUpPress = this.onUpPress.bind(this)
+    this.onRotatePress = this.onRotatePress.bind(this)
+  }
 
-    //this.onPlayAgain()
+  componentWillMount() {
+    this.onPlayAgain()
+  }
+
+  onLeftPress() {
+    let {
+      heart
+    } = this.state
+
+    heart.x = heart.x - 1
+    
+    this.setState({
+      heart
+    })
+  }
+
+  onRightPress() {
+    let {
+      heart
+    } = this.state
+
+    heart.x = heart.x + 1
+    
+    this.setState({
+      heart
+    })
+  }
+
+  onUpPress() {
+    let {
+      heart
+    } = this.state
+
+    heart.y = heart.y - 1
+    
+    this.setState({
+      heart
+    })
+  }
+
+  onBottomPress() {
+    let {
+      heart
+    } = this.state
+
+    heart.y = heart.y + 1
+    
+    this.setState({
+      heart
+    })
+  }
+
+  onRotatePress() {
+    let {
+      direction
+    } = this.state
+
+    direction += 1
+    direction %= 4
+    
+    this.setState({
+      direction
+    })
   }
 
   onPlayAgain() {
-     this.setState({
-        board: [
-           [{value: 0},{value: 0},{value: 0}]
-        , 
-           [{value: 0},{value: 0},{value: 0}]
-        , 
-           [{value: 0},{value: 0},{value: 0}]
-        ],
+     let size = 5
+     let board = new Array(size)
+     for (var i = 0; i < size; i++) {
+        board[i] = new Array(size)
+     }
 
+     for(var i = 0; i < size; i ++) {
+        for(var j = 0; j < size; j ++) {
+            board[i][j] = 0
+        } 
+     }
+
+     this.setState({
+        board: board,
         playerTurn: true, //true == x, false == y
         gameResult: 0, //0 - inProgress, 1 - x, 2 - o, 3-draw 
         step: 0
@@ -62,9 +136,9 @@ export default class Game extends Component {
         step
      } = this.state
 
-     //alert(board[x][y].value)
+     //alert(board[x][y])
 
-     board[x][y].value = playerTurn ? 1 : 2
+     board[x][y] = playerTurn ? 1 : 2
      step ++
      let result = this.gameWinCondition(step, x, y, board, playerTurn)
 
@@ -84,16 +158,16 @@ export default class Game extends Component {
         let equalValue = playerTurn ? 1 : 2
         let sum = 0
         //alert(step)
-        //alert(board[0][y].value + ' ' + board[1][y].value + ' ' + board[2][y].value + ' ')
+        //alert(board[0][y] + ' ' + board[1][y] + ' ' + board[2][y] + ' ')
 
-        sum = (board[0][y].value == equalValue ? 1 : 0) + (board[1][y].value == equalValue ? 1 : 0) + (board[2][y].value == equalValue ? 1 : 0)
+        sum = (board[0][y] == equalValue ? 1 : 0) + (board[1][y] == equalValue ? 1 : 0) + (board[2][y] == equalValue ? 1 : 0)
 
         if(sum == 3) {
             return equalValue
         }
 
         //2. Column
-        sum = (board[x][0].value == equalValue ? 1 : 0) + (board[x][1].value == equalValue ? 1 : 0) + (board[x][2].value == equalValue ? 1 : 0)
+        sum = (board[x][0] == equalValue ? 1 : 0) + (board[x][1] == equalValue ? 1 : 0) + (board[x][2] == equalValue ? 1 : 0)
         if(sum == 3) {
             return equalValue
         }
@@ -102,12 +176,12 @@ export default class Game extends Component {
         if(Math.abs(x - y) % 2 == 0) {
             //Middle
             //if(x == 1 && y == 1) {
-            sum = (board[0][0].value == equalValue ? 1 : 0) + (board[1][1].value == equalValue ? 1 : 0) + (board[2][2].value == equalValue ? 1 : 0)
+            sum = (board[0][0] == equalValue ? 1 : 0) + (board[1][1] == equalValue ? 1 : 0) + (board[2][2] == equalValue ? 1 : 0)
             if(sum == 3) {
                 return equalValue
             }      
 
-            sum = (board[2][0].value == equalValue ? 1 : 0) + (board[1][1].value == equalValue ? 1 : 0) + (board[0][2].value == equalValue ? 1 : 0)
+            sum = (board[2][0] == equalValue ? 1 : 0) + (board[1][1] == equalValue ? 1 : 0) + (board[0][2] == equalValue ? 1 : 0)
             if(sum == 3) {
                 return equalValue
             }
@@ -164,7 +238,9 @@ export default class Game extends Component {
     let {
         board,
         playerTurn,
-        gameResult
+        gameResult,
+        heart,
+        direction
     } = this.state
 
     return (
@@ -181,7 +257,7 @@ export default class Game extends Component {
                         row.map((column, j) => (
                             <Grid x={i}
                                   y={j}
-                                  value={board[i][j].value}
+                                  value={0}
                                   size={blockSize}
                                   onGridPressed={this.onGridPressed}
                             />
@@ -190,13 +266,26 @@ export default class Game extends Component {
                     </View>
                 ))
             }
+                <Plane heart={heart}
+                       direction={direction}
+                />
             </View>
 
-            <View style={{ height: 100 }}>
+
+            <View style={[{ height: 200, }]}>
+                <GameControl onLeftPress={this.onLeftPress}
+                             onRightPress={this.onRightPress}
+                             onBottomPress={this.onBottomPress}
+                             onUpPress={this.onUpPress}
+                             onRotatePress={this.onRotatePress}
+                />
+            </View>
+
+            <View style={{ height: 60 }}>
                 <TouchableOpacity style={{paddingVertical: 10, paddingHorizontal: 60, borderColor: '#ff3165', borderWidth: 3}} 
                                 onPress={() => this.props.onChangeStage(0)}>
                     <Text style={[styles.menuText, {color: '#ff3165'}]}>MAIN MENU</Text>
-                 </TouchableOpacity>
+                </TouchableOpacity>
             </View>
 
             {

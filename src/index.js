@@ -8,7 +8,7 @@ export default class TicTacToe extends Component {
 	  super(props)
 	
 	  this.state = {
-	     stage: 0, //0-Main Menu, 1-Game Process, 2-Summery
+	     stage: 1, //0-Main Menu, 1-Game Process, 2-Summery
 	  }
 
 	  this.onChangeStage = this.onChangeStage.bind(this)
